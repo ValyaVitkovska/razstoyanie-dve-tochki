@@ -376,6 +376,7 @@
   @media (max-width: 1024px) {
     .layout { grid-template-columns: 1fr; }
   }
+  /* MOBILE-RESPONSIVE-MARKER */
 
   .canvas-section {
     background: var(--paper-dark);
@@ -411,6 +412,8 @@
     display: block;
     cursor: crosshair;
     user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
   }
 
   .point-handle {
@@ -1094,6 +1097,221 @@
     font-family: 'Cormorant Garamond', serif;
     font-size: 0.9rem;
   }
+
+  /* ============================================================
+     RESPONSIVE — TABLET (≤ 1024px)
+     ============================================================ */
+  @media (max-width: 1024px) {
+    body { padding: 14px; }
+    header { padding: 24px 14px 18px; }
+    header::before { left: 8%; }
+    header::after { right: 8%; }
+
+    .canvas-section, .panel { padding: 16px; box-shadow: 4px 4px 0 var(--ink); }
+    .question-card { padding: 22px; box-shadow: 4px 4px 0 var(--ink); }
+
+    .case-tabs { grid-template-columns: repeat(4, 1fr); }
+    .case-btn { font-size: 0.88rem; padding: 8px 6px; }
+
+    .splash-card { max-width: 700px; padding: 16px; gap: 12px; }
+    .splash-credits .credit-line { font-size: 1rem; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — SMALL TABLET / LARGE PHONE (≤ 768px)
+     ============================================================ */
+  @media (max-width: 768px) {
+    body { padding: 10px; }
+
+    header {
+      padding: 18px 10px 14px;
+      margin-bottom: 18px;
+    }
+    header::before, header::after { display: none; }
+
+    h1 { font-size: clamp(1.4rem, 6vw, 2rem); }
+    .subtitle { font-size: 0.95rem; }
+
+    /* Mode switcher: stack on small screens */
+    .mode-switcher { flex-direction: column; gap: 0; margin-bottom: 18px; }
+    .mode-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 11px 16px;
+      font-size: 1rem;
+    }
+    .mode-btn:first-child { border-right: 1px solid var(--ink); border-bottom: none; }
+    .mode-btn:last-child { border-top: none; }
+
+    /* Layout */
+    .layout { gap: 16px; }
+    .canvas-section, .panel { padding: 14px; }
+
+    /* Coordinate inputs - keep both side-by-side but smaller */
+    .point-row {
+      grid-template-columns: 36px 1fr 1fr;
+      gap: 6px;
+    }
+    .point-label { font-size: 1rem; width: 36px; }
+    .coord-input { padding: 4px 6px; }
+    .coord-input span { font-size: 0.9rem; }
+    .coord-input input { font-size: 0.85rem; }
+
+    /* Case tabs in 2 cols */
+    .case-tabs { grid-template-columns: repeat(2, 1fr); }
+    .case-btn { font-size: 0.92rem; padding: 9px 8px; }
+
+    /* Toggle buttons wrap nicer */
+    .toggle { font-size: 0.85rem; padding: 6px 9px; }
+
+    /* Formula box - allow horizontal scroll if very long */
+    .formula-box {
+      font-size: 0.85rem;
+      padding: 12px;
+      line-height: 1.7;
+    }
+
+    /* Test mode adjustments */
+    .question-card { padding: 18px; box-shadow: 3px 3px 0 var(--ink); }
+    .question-text { font-size: 1.08rem; }
+    .question-text .math { font-size: 0.9em; padding: 1px 4px; }
+
+    .option { font-size: 0.95rem; padding: 11px 12px; gap: 10px; }
+    .option .letter { width: 24px; height: 24px; font-size: 0.78rem; }
+
+    .feedback { font-size: 0.92rem; padding: 10px 12px; }
+    .open-in-lesson { font-size: 0.88rem; padding: 7px 10px; }
+
+    .nav-buttons { gap: 8px; }
+    .btn { padding: 10px 16px; font-size: 1rem; box-shadow: 2px 2px 0 var(--ink); }
+
+    .progress-bar { height: 24px; box-shadow: 2px 2px 0 var(--ink); }
+    .progress-text { font-size: 0.82rem; }
+
+    .start-screen, .results-screen { padding: 28px 18px; box-shadow: 4px 4px 0 var(--ink); }
+    .start-screen p { font-size: 1.02rem; }
+
+    .score-circle { width: 140px; height: 140px; }
+    .score-num { font-size: 2.8rem; }
+
+    .teacher-banner { flex-wrap: wrap; padding: 10px 14px; gap: 8px; }
+    .teacher-banner .text { font-size: 0.92rem; }
+    .teacher-banner .badge { font-size: 0.72rem; padding: 2px 7px; }
+
+    /* Background decorations - hide some on mobile to reduce noise */
+    .bg-decor.s1, .bg-decor.s4 { display: none; }
+    .bg-decor { font-size: 2.5rem !important; }
+
+    /* Splash adjustments */
+    .splash-overlay { padding: 10px; }
+    .splash-card { padding: 14px; gap: 10px; box-shadow: 4px 4px 0 rgba(26,26,26,0.85); }
+    .splash-credits { padding: 10px 14px; }
+    .splash-credits .credit-line { font-size: 0.9rem; line-height: 1.4; }
+    .splash-enter-btn { padding: 10px 24px; font-size: 1.05rem; }
+
+    .from-test-banner { font-size: 0.88rem; padding: 8px 12px; flex-wrap: wrap; }
+  }
+
+  /* ============================================================
+     RESPONSIVE — PHONE (≤ 480px)
+     ============================================================ */
+  @media (max-width: 480px) {
+    body { padding: 8px; }
+
+    header { padding: 14px 8px 12px; margin-bottom: 14px; }
+    h1 { font-size: 1.4rem; }
+    .subtitle { font-size: 0.85rem; }
+
+    .canvas-section, .panel { padding: 12px; }
+    .panel h2 { font-size: 1.15rem; }
+
+    /* Make the canvas larger relative to width on phones */
+    .canvas-wrapper { aspect-ratio: 1 / 1; }
+
+    /* Stack coords vertically on tiny screens */
+    .point-row {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 6px;
+    }
+    .point-label {
+      grid-column: 1 / -1;
+      width: 100%;
+      text-align: left;
+      padding-bottom: 2px;
+      border-bottom: 1px dashed rgba(26,26,26,0.2);
+      margin-bottom: 2px;
+    }
+
+    /* Touch targets larger */
+    .case-btn { padding: 10px 8px; font-size: 0.9rem; min-height: 40px; }
+    .toggle { padding: 8px 11px; min-height: 36px; }
+
+    /* Test cards more compact */
+    .question-card { padding: 14px; }
+    .question-header { gap: 8px; flex-wrap: wrap; }
+    .question-num { font-size: 0.78rem; }
+    .question-text { font-size: 1rem; line-height: 1.45; }
+
+    .option { font-size: 0.92rem; padding: 11px 10px; min-height: 44px; }
+
+    .nav-buttons { flex-direction: column; }
+    .btn { width: 100%; padding: 11px 14px; }
+
+    .start-screen, .results-screen { padding: 22px 14px; }
+    .start-screen p { font-size: 0.95rem; }
+    .start-screen .formula-display { font-size: 0.95rem; padding: 12px; }
+
+    .score-circle { width: 120px; height: 120px; }
+    .score-num { font-size: 2.4rem; }
+    .score-total { font-size: 1rem; }
+    .score-percent { font-size: 1.15rem; }
+    .grade { font-size: 1.3rem; }
+
+    .review-item { font-size: 0.9rem; padding: 7px 10px; }
+
+    .legend { font-size: 0.82rem; gap: 8px; }
+
+    /* Splash on phone */
+    .splash-card { padding: 10px; gap: 8px; }
+    .splash-image-wrap { box-shadow: 2px 2px 0 rgba(26,26,26,0.7); }
+    .splash-credits { padding: 8px 12px; }
+    .splash-credits .credit-line { font-size: 0.85rem; }
+    .splash-enter-btn { padding: 9px 20px; font-size: 1rem; box-shadow: 3px 3px 0 #1a1a1a; }
+
+    /* Hide more decorations on phone */
+    .bg-decor.s2, .bg-decor.s5 { display: none; }
+  }
+
+  /* ============================================================
+     LANDSCAPE PHONE — height-constrained
+     ============================================================ */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .splash-card {
+      flex-direction: row;
+      max-width: 95vw;
+      max-height: calc(100vh - 16px);
+      align-items: stretch;
+    }
+    .splash-image-wrap {
+      flex: 1 1 60%;
+      box-shadow: 3px 3px 0 rgba(26,26,26,0.7);
+    }
+    .splash-bottom {
+      flex: 1 1 40%;
+      justify-content: center;
+    }
+  }
+
+  /* ============================================================
+     PRINT
+     ============================================================ */
+  @media print {
+    .splash-overlay, .mode-switcher, .nav-buttons, .toggle-row,
+    .bg-decor, body::before, body::after { display: none !important; }
+    body { background: white; padding: 0; }
+    .panel, .canvas-section, .question-card { box-shadow: none; border: 1px solid #000; }
+  }
 </style>
 </head>
 <body>
@@ -1278,7 +1496,7 @@
   </div>
 
   <footer>
-    Геометрия · 8 клас · разстояние между две точки в координатна равнина
+    Геометрия · 9 клас · разстояние между две точки в координатна равнина
   </footer>
 </div>
 
@@ -1448,6 +1666,11 @@ const Lesson = (() => {
   }
 
   function drawPoint(P, name, color, px) {
+    // Invisible larger hit area for better touch targeting on mobile
+    gPts.appendChild(el('circle', {
+      cx: px.x, cy: px.y, r: 22, fill:'transparent',
+      'data-handle': name, class: 'point-handle', style: 'cursor: grab;'
+    }));
     gPts.appendChild(el('circle', {
       cx: px.x, cy: px.y, r: 12, fill:'#f4ede0', stroke: color, 'stroke-width': 2,
       'data-handle': name, class: 'point-handle'
