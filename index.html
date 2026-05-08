@@ -580,6 +580,25 @@
     font-size: 1.1rem;
   }
 
+  .formula-hint {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(184, 134, 11, 0.1);
+    border-left: 3px solid var(--accent-gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .side-clickable {
+    transition: stroke-width 0.15s ease, opacity 0.15s ease;
+  }
+  .side-clickable:hover {
+    opacity: 0.85;
+  }
+
   .case-description {
     font-size: 1rem;
     line-height: 1.5;
@@ -1525,6 +1544,7 @@ const Lesson = (() => {
     showTriangle: true,
     showProjections: true,
     showLabels: true,
+    formulaMode: null,  // null = nothing selected; 'AB' | 'horiz' | 'vert' after click
   };
 
   const cases = {
@@ -1604,24 +1624,77 @@ const Lesson = (() => {
         points: `${Apx.x},${Apx.y} ${Bpx.x},${Bpx.y} ${Cpx.x},${Cpx.y}`,
         fill: 'rgba(184, 134, 11, 0.08)', stroke: 'none'
       }));
-      gConstr.appendChild(el('line', { x1: Apx.x, y1: Apx.y, x2: Cpx.x, y2: Cpx.y, stroke:'#2c5f7c', 'stroke-width': 2, 'stroke-dasharray':'6 4' }));
-      gConstr.appendChild(el('line', { x1: Cpx.x, y1: Cpx.y, x2: Bpx.x, y2: Bpx.y, stroke:'#2c5f7c', 'stroke-width': 2, 'stroke-dasharray':'6 4' }));
+
+      const activeMode = state.formulaMode; // null | 'AB' | 'horiz' | 'vert'
+      const isHoriz = activeMode === 'horiz';
+      const isVert = activeMode === 'vert';
+
+      // Horizontal leg (A → C) — clickable
+      gConstr.appendChild(el('line', {
+        x1: Apx.x, y1: Apx.y, x2: Cpx.x, y2: Cpx.y,
+        stroke: isHoriz ? '#c1432e' : '#2c5f7c',
+        'stroke-width': isHoriz ? 4 : 2,
+        'stroke-dasharray': isHoriz ? 'none' : '6 4',
+        'stroke-linecap': 'round',
+        'data-side': 'horiz', class: 'side-clickable',
+        style: 'cursor: pointer;'
+      }));
+      // Invisible thicker hit-area for easier clicking
+      gConstr.appendChild(el('line', {
+        x1: Apx.x, y1: Apx.y, x2: Cpx.x, y2: Cpx.y,
+        stroke: 'transparent', 'stroke-width': 18,
+        'data-side': 'horiz', class: 'side-clickable',
+        style: 'cursor: pointer;'
+      }));
+
+      // Vertical leg (C → B) — clickable
+      gConstr.appendChild(el('line', {
+        x1: Cpx.x, y1: Cpx.y, x2: Bpx.x, y2: Bpx.y,
+        stroke: isVert ? '#c1432e' : '#2c5f7c',
+        'stroke-width': isVert ? 4 : 2,
+        'stroke-dasharray': isVert ? 'none' : '6 4',
+        'stroke-linecap': 'round',
+        'data-side': 'vert', class: 'side-clickable',
+        style: 'cursor: pointer;'
+      }));
+      gConstr.appendChild(el('line', {
+        x1: Cpx.x, y1: Cpx.y, x2: Bpx.x, y2: Bpx.y,
+        stroke: 'transparent', 'stroke-width': 18,
+        'data-side': 'vert', class: 'side-clickable',
+        style: 'cursor: pointer;'
+      }));
 
       const rSize = 12;
       const sgnX = Bpx.x > Apx.x ? -1 : 1;
       const sgnY = Bpx.y > Cpx.y ? -1 : 1;
       gConstr.appendChild(el('path', {
         d: `M ${Cpx.x + sgnX*rSize} ${Cpx.y} L ${Cpx.x + sgnX*rSize} ${Cpx.y + sgnY*rSize} L ${Cpx.x} ${Cpx.y + sgnY*rSize}`,
-        fill: 'none', stroke:'#2c5f7c', 'stroke-width': 1.2
+        fill: 'none', stroke:'#2c5f7c', 'stroke-width': 1.2,
+        'pointer-events': 'none'
       }));
 
       if (state.showLabels) {
-        const midH = { x: (Apx.x + Cpx.x)/2, y: Apx.y + (Bpx.y > Apx.y ? -10 : 14) };
-        gLab.appendChild(el('text', { x: midH.x, y: midH.y, 'text-anchor':'middle', 'font-family':'Cormorant Garamond, serif', 'font-size':14, 'font-style':'italic', fill:'#2c5f7c' }, `|x₂−x₁| = ${Math.abs(dx).toFixed(2)}`));
-
-        const midV = { x: Cpx.x + (Bpx.x > Apx.x ? 8 : -8), y: (Cpx.y + Bpx.y)/2 };
-        const anchorV = Bpx.x > Apx.x ? 'start' : 'end';
-        gLab.appendChild(el('text', { x: midV.x, y: midV.y, 'text-anchor': anchorV, 'font-family':'Cormorant Garamond, serif', 'font-size':14, 'font-style':'italic', fill:'#2c5f7c' }, `|y₂−y₁| = ${Math.abs(dy).toFixed(2)}`));
+        // Show leg labels ONLY when that leg has been clicked.
+        // Before clicking, the leg has no label — student should click to reveal it.
+        if (isHoriz) {
+          const midH = { x: (Apx.x + Cpx.x)/2, y: Apx.y + (Bpx.y > Apx.y ? -10 : 14) };
+          gLab.appendChild(el('text', {
+            x: midH.x, y: midH.y, 'text-anchor':'middle',
+            'font-family':'Cormorant Garamond, serif', 'font-size':14, 'font-style':'italic',
+            'font-weight': 700, fill: '#c1432e',
+            'pointer-events': 'none'
+          }, `|x₂−x₁| = ${Math.abs(dx).toFixed(2).replace(/\.00$/,'')}`));
+        }
+        if (isVert) {
+          const midV = { x: Cpx.x + (Bpx.x > Apx.x ? 8 : -8), y: (Cpx.y + Bpx.y)/2 };
+          const anchorV = Bpx.x > Apx.x ? 'start' : 'end';
+          gLab.appendChild(el('text', {
+            x: midV.x, y: midV.y, 'text-anchor': anchorV,
+            'font-family':'Cormorant Garamond, serif', 'font-size':14, 'font-style':'italic',
+            'font-weight': 700, fill: '#c1432e',
+            'pointer-events': 'none'
+          }, `|y₂−y₁| = ${Math.abs(dy).toFixed(2).replace(/\.00$/,'')}`));
+        }
       }
     }
 
@@ -1638,22 +1711,76 @@ const Lesson = (() => {
     }
 
     if (!coincide) {
+      const isAB = state.formulaMode === 'AB';
+      const canPickSide = !sameX && !sameY; // only true general case has separate sides
+
       gSeg.appendChild(el('line', {
         x1: Apx.x, y1: Apx.y, x2: Bpx.x, y2: Bpx.y,
-        stroke: '#b8860b', 'stroke-width': 3, 'stroke-linecap':'round'
+        stroke: '#b8860b',
+        'stroke-width': (canPickSide && isAB) ? 5 : 3,
+        'stroke-linecap':'round',
+        'data-side': 'AB',
+        class: canPickSide ? 'side-clickable' : '',
+        style: canPickSide ? 'cursor: pointer;' : ''
       }));
+      // Invisible thicker hit-area for hypotenuse
+      if (canPickSide) {
+        gSeg.appendChild(el('line', {
+          x1: Apx.x, y1: Apx.y, x2: Bpx.x, y2: Bpx.y,
+          stroke: 'transparent', 'stroke-width': 18,
+          'data-side': 'AB', class: 'side-clickable',
+          style: 'cursor: pointer;'
+        }));
+      }
 
       if (state.showLabels) {
-        const midX = (Apx.x + Bpx.x)/2;
-        const midY = (Apx.y + Bpx.y)/2;
-        const len = Math.hypot(Bpx.x - Apx.x, Bpx.y - Apx.y);
-        const nx = -(Bpx.y - Apx.y)/len;
-        const ny = (Bpx.x - Apx.x)/len;
-        const offX = midX + nx * 18;
-        const offY = midY + ny * 18;
+        // In the general case, the hypotenuse label only appears after AB is clicked.
+        // In special cases (horizontal/vertical), AB is the only segment so we always show it.
+        const showHypLabel = !canPickSide || isAB;
 
-        gLab.appendChild(el('rect', { x: offX - 32, y: offY - 11, width: 64, height: 20, fill:'#f4ede0', stroke:'#b8860b', 'stroke-width':1, rx: 2 }));
-        gLab.appendChild(el('text', { x: offX, y: offY + 4, 'text-anchor':'middle', 'font-family':'Cormorant Garamond, serif', 'font-size':14, 'font-weight': 600, fill:'#b8860b' }, `AB = ${dist.toFixed(2)}`));
+        if (showHypLabel) {
+          const midX = (Apx.x + Bpx.x)/2;
+          const midY = (Apx.y + Bpx.y)/2;
+          const len = Math.hypot(Bpx.x - Apx.x, Bpx.y - Apx.y);
+          const nx = -(Bpx.y - Apx.y)/len;
+          const ny = (Bpx.x - Apx.x)/len;
+          const offX = midX + nx * 18;
+          const offY = midY + ny * 18;
+
+          // Build label with exact value (radical if irrational)
+          let labelText;
+          const sumOfSquares = dx*dx + dy*dy;
+          if (Number.isInteger(sumOfSquares) && sumOfSquares >= 0) {
+            const s = simplifyRadical(sumOfSquares);
+            if (s.rad === 1) {
+              labelText = `AB = ${s.coef}`;
+            } else if (s.coef === 1) {
+              labelText = `AB = √${s.rad}`;
+            } else {
+              labelText = `AB = ${s.coef}√${s.rad}`;
+            }
+          } else {
+            labelText = `AB ≈ ${dist.toFixed(2)}`;
+          }
+
+          // Auto-size the label box based on text length
+          const charW = 7.2;
+          const padding = 12;
+          const boxW = Math.max(40, labelText.length * charW + padding);
+
+          gLab.appendChild(el('rect', {
+            x: offX - boxW/2, y: offY - 11, width: boxW, height: 20,
+            fill:'#f4ede0', stroke:'#b8860b',
+            'stroke-width': (canPickSide && isAB) ? 2 : 1,
+            rx: 2, 'pointer-events': 'none'
+          }));
+          gLab.appendChild(el('text', {
+            x: offX, y: offY + 4, 'text-anchor':'middle',
+            'font-family':'Cormorant Garamond, serif', 'font-size': 14,
+            'font-weight': (canPickSide && isAB) ? 700 : 600,
+            fill:'#b8860b', 'pointer-events': 'none'
+          }, labelText));
+        }
       }
     }
 
@@ -1693,6 +1820,40 @@ const Lesson = (() => {
     }
   }
 
+  // Helper: wrap negative numbers in parentheses to avoid double signs like "4 − −3"
+  function fmtSub(n) {
+    const s = Number.isInteger(n) ? String(n) : n.toFixed(2);
+    return n < 0 ? `(${s})` : s;
+  }
+
+  // Helper: factor out perfect-square divisor — returns {coef, rad} where value = coef·√rad
+  // e.g. simplifyRadical(50) → {coef: 5, rad: 2}  meaning 5√2
+  // e.g. simplifyRadical(58) → {coef: 1, rad: 58} meaning √58
+  // e.g. simplifyRadical(49) → {coef: 7, rad: 1}  meaning 7 (perfect square)
+  function simplifyRadical(n) {
+    if (n < 0 || !Number.isInteger(n)) return null;
+    if (n === 0) return { coef: 0, rad: 1 };
+    let coef = 1, rad = n;
+    for (let k = 2; k * k <= rad; k++) {
+      while (rad % (k*k) === 0) {
+        coef *= k;
+        rad = rad / (k*k);
+      }
+    }
+    return { coef, rad };
+  }
+
+  // Build the exact square-root representation for a sum-of-squares value
+  // Returns HTML or null if the value isn't a non-negative integer
+  function exactSqrtHTML(n) {
+    if (!Number.isInteger(n) || n < 0) return null;
+    const s = simplifyRadical(n);
+    if (!s) return null;
+    if (s.rad === 1) return String(s.coef); // perfect square — no radical needed
+    if (s.coef === 1) return `<span class="sqrt"><span class="sqrt-content">${s.rad}</span></span>`;
+    return `${s.coef}<span class="sqrt"><span class="sqrt-content">${s.rad}</span></span>`;
+  }
+
   function updateFormula() {
     const A = state.A, B = state.B;
     const dx = B.x - A.x;
@@ -1707,27 +1868,67 @@ const Lesson = (() => {
     let html = '';
     html += `<div class="formula-line"><span class="label">Дадено:</span> A(${fmt(A.x)}; ${fmt(A.y)}), &nbsp; B(${fmt(B.x)}; ${fmt(B.y)})</div>`;
 
+    // === Mode: which segment is being computed ===
+    const mode = state.formulaMode; // null | 'AB' | 'horiz' | 'vert'
+
     if (coincide) {
       html += `<div class="formula-line">A ≡ B → точките съвпадат</div>`;
       html += `<div class="result-line">AB = 0</div>`;
     } else if (sameY) {
-      html += `<div class="formula-line">y₁ = y₂ → AB ∥ Ox</div>`;
+      // Horizontal segment only
+      html += `<div class="formula-line"><span class="label">y₁ = y₂ →</span> AB ∥ Ox</div>`;
       html += `<div class="formula-line">AB = |x₂ − x₁|</div>`;
-      html += `<div class="formula-line">AB = |${fmt(B.x)} − ${fmt(A.x)}| = |${fmt(dx)}|</div>`;
+      html += `<div class="formula-line">AB = |${fmt(B.x)} − ${fmtSub(A.x)}| = |${fmt(dx)}|</div>`;
       html += `<div class="result-line">AB = ${fmt(Math.abs(dx))}</div>`;
     } else if (sameX) {
-      html += `<div class="formula-line">x₁ = x₂ → AB ∥ Oy</div>`;
+      html += `<div class="formula-line"><span class="label">x₁ = x₂ →</span> AB ∥ Oy</div>`;
       html += `<div class="formula-line">AB = |y₂ − y₁|</div>`;
-      html += `<div class="formula-line">AB = |${fmt(B.y)} − ${fmt(A.y)}| = |${fmt(dy)}|</div>`;
+      html += `<div class="formula-line">AB = |${fmt(B.y)} − ${fmtSub(A.y)}| = |${fmt(dy)}|</div>`;
       html += `<div class="result-line">AB = ${fmt(Math.abs(dy))}</div>`;
+    } else if (mode === 'horiz') {
+      // Computing horizontal leg AC
+      html += `<div class="formula-line"><span class="label">Хоризонтален катет AC:</span></div>`;
+      html += `<div class="formula-line">AC ∥ Ox &nbsp; → &nbsp; AC = |x₂ − x₁|</div>`;
+      html += `<div class="formula-line">AC = |${fmt(B.x)} − ${fmtSub(A.x)}| = |${fmt(dx)}|</div>`;
+      html += `<div class="result-line">AC = ${fmt(Math.abs(dx))}</div>`;
+    } else if (mode === 'vert') {
+      // Computing vertical leg BC
+      html += `<div class="formula-line"><span class="label">Вертикален катет BC:</span></div>`;
+      html += `<div class="formula-line">BC ∥ Oy &nbsp; → &nbsp; BC = |y₂ − y₁|</div>`;
+      html += `<div class="formula-line">BC = |${fmt(B.y)} − ${fmtSub(A.y)}| = |${fmt(dy)}|</div>`;
+      html += `<div class="result-line">BC = ${fmt(Math.abs(dy))}</div>`;
+    } else if (mode === 'AB') {
+      // Hypotenuse AB — full computation with Pythagoras
+      const sumOfSquares = dx*dx + dy*dy;
+      const exactRoot = exactSqrtHTML(sumOfSquares);
+      html += `<div class="formula-line"><span class="label">Хипотенуза AB:</span></div>`;
+      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(x₂−x₁)<span class="sup">2</span> + (y₂−y₁)<span class="sup">2</span></span></span></div>`;
+      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(${fmt(B.x)} − ${fmtSub(A.x)})<span class="sup">2</span> + (${fmt(B.y)} − ${fmtSub(A.y)})<span class="sup">2</span></span></span></div>`;
+      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(${fmt(dx)})<span class="sup">2</span> + (${fmt(dy)})<span class="sup">2</span></span></span></div>`;
+      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">${fmt(dx*dx)} + ${fmt(dy*dy)}</span></span> = <span class="sqrt"><span class="sqrt-content">${fmt(sumOfSquares)}</span></span></div>`;
+
+      if (exactRoot !== null) {
+        const s = simplifyRadical(sumOfSquares);
+        const isPerfect = s.rad === 1;
+        if (isPerfect) {
+          html += `<div class="result-line">AB = ${exactRoot}</div>`;
+        } else {
+          html += `<div class="result-line">AB = ${exactRoot} ≈ ${dist.toFixed(3)}</div>`;
+        }
+      } else {
+        html += `<div class="result-line">AB ≈ ${dist.toFixed(3)}</div>`;
+      }
     } else {
+      // No side selected yet — show only the general formula and invite the student
       html += `<div class="formula-line"><span class="label">Формула:</span></div>`;
       html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(x₂−x₁)<span class="sup">2</span> + (y₂−y₁)<span class="sup">2</span></span></span></div>`;
-      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(${fmt(B.x)}−${fmt(A.x)})<span class="sup">2</span> + (${fmt(B.y)}−${fmt(A.y)})<span class="sup">2</span></span></span></div>`;
-      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(${fmt(dx)})<span class="sup">2</span> + (${fmt(dy)})<span class="sup">2</span></span></span></div>`;
-      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">${fmt(dx*dx)} + ${fmt(dy*dy)}</span></span> = <span class="sqrt"><span class="sqrt-content">${fmt(dx*dx + dy*dy)}</span></span></div>`;
-      html += `<div class="result-line">AB ≈ ${dist.toFixed(3)}</div>`;
     }
+
+    // Hint for clicking sides (only in general case)
+    if (!coincide && !sameX && !sameY) {
+      html += `<div class="formula-hint">↔ Кликнете върху страна на триъгълника, за да видите дължината и пълното изчисление за нея.</div>`;
+    }
+
     document.getElementById('formulaBox').innerHTML = html;
   }
 
@@ -1749,6 +1950,7 @@ const Lesson = (() => {
     if (!cases[name]) return;
     state.A = { ...cases[name].A };
     state.B = { ...cases[name].B };
+    state.formulaMode = null;
     document.getElementById('caseDesc').textContent = cases[name].desc;
     document.querySelectorAll('.case-btn').forEach(b => b.classList.toggle('active', b.dataset.case === name));
     syncInputs();
@@ -1758,6 +1960,7 @@ const Lesson = (() => {
   function setPoints(A, B, description) {
     state.A = { ...A };
     state.B = { ...B };
+    state.formulaMode = null;
     document.getElementById('caseDesc').textContent = description || 'Визуализация на въпрос от теста.';
     document.querySelectorAll('.case-btn').forEach(b => b.classList.remove('active'));
     syncInputs();
@@ -1808,6 +2011,15 @@ const Lesson = (() => {
   }, { passive: false });
   window.addEventListener('touchmove', doDrag, { passive: false });
   window.addEventListener('touchend', () => { dragging = null; });
+
+  // === Click on triangle side to switch formula mode ===
+  svg.addEventListener('click', (evt) => {
+    if (dragging) return; // ignore clicks during drag
+    const side = evt.target.getAttribute('data-side');
+    if (!side) return;
+    state.formulaMode = side;
+    update();
+  });
 
   ['ax','ay','bx','by'].forEach(id => {
     document.getElementById(id).addEventListener('input', (e) => {
