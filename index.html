@@ -282,7 +282,7 @@
 
   header {
     text-align: center;
-    padding: 30px 20px 24px;
+    padding: 30px 20px 32px;
     border-bottom: 2px solid var(--ink);
     margin-bottom: 24px;
     position: relative;
@@ -325,10 +325,65 @@
 
   /* Mode switcher */
   .mode-switcher {
-    display: flex;
+    display: none;
     justify-content: center;
     gap: 0;
     margin-bottom: 28px;
+    animation: switcherReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .mode-switcher.revealed { display: flex; }
+
+  @keyframes switcherReveal {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hidden mode-toggle: title is the secret entrance */
+  header h1 {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: filter 0.2s ease;
+  }
+  header h1:active {
+    filter: brightness(1.15);
+  }
+
+  /* Tiny progress dots that briefly appear during sequential clicks */
+  .secret-progress {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .secret-progress.show { opacity: 1; }
+
+  .secret-progress .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(26, 26, 26, 0.15);
+    transition: all 0.2s ease;
+  }
+  .secret-progress .dot.active {
+    background: var(--accent-gold);
+    transform: scale(1.3);
+  }
+
+  /* Brief flourish on success */
+  .secret-progress.success .dot {
+    background: var(--accent-green);
+    animation: flourish 0.5s ease;
+  }
+  @keyframes flourish {
+    0%, 100% { transform: scale(1.3); }
+    50% { transform: scale(1.6); }
   }
 
   .mode-btn {
@@ -1331,6 +1386,142 @@
     body { background: white; padding: 0; }
     .panel, .canvas-section, .question-card { box-shadow: none; border: 1px solid #000; }
   }
+
+  /* ============================================================
+     3D BUTTONS — depth, light highlights, tactile press
+     ============================================================ */
+  .btn,
+  .case-btn,
+  .toggle,
+  .mode-btn,
+  .option,
+  .splash-enter-btn,
+  .open-in-lesson,
+  .from-test-banner button {
+    border-radius: 6px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.06) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+      0 3px 0 rgba(26, 26, 26, 0.85),
+      0 5px 12px rgba(26, 26, 26, 0.18);
+  }
+
+  .btn:hover:not(:disabled),
+  .case-btn:hover,
+  .mode-btn:hover,
+  .option:hover:not(.disabled),
+  .toggle:hover,
+  .splash-enter-btn:hover,
+  .open-in-lesson:hover,
+  .from-test-banner button:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+      0 4px 0 rgba(26, 26, 26, 0.85),
+      0 7px 16px rgba(26, 26, 26, 0.22);
+  }
+
+  .btn:active:not(:disabled),
+  .case-btn:active,
+  .mode-btn:active,
+  .option:active:not(.disabled),
+  .toggle:active,
+  .splash-enter-btn:active,
+  .open-in-lesson:active,
+  .from-test-banner button:active {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.18),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+      0 1px 0 rgba(26, 26, 26, 0.85),
+      0 2px 5px rgba(26, 26, 26, 0.15);
+    filter: brightness(0.97);
+  }
+
+  .btn:disabled {
+    background-image: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 2px 0 rgba(26, 26, 26, 0.4);
+    transform: none;
+  }
+
+  .splash-enter-btn {
+    border-radius: 8px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.22),
+      0 4px 0 rgba(26, 26, 26, 0.9),
+      0 8px 18px rgba(193, 67, 46, 0.35);
+  }
+  .splash-enter-btn:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.22),
+      0 6px 0 rgba(26, 26, 26, 0.9),
+      0 12px 24px rgba(193, 67, 46, 0.4);
+  }
+  .splash-enter-btn:active {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.3),
+      0 1px 0 rgba(26, 26, 26, 0.9),
+      0 3px 8px rgba(193, 67, 46, 0.25);
+  }
+
+  /* ============================================================
+     AUTHOR CREDIT — clearer hierarchy
+     ============================================================ */
+  .splash-credits .author-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #2c5f7c;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+
+  .splash-credits .author-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #c1432e;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+
+  .splash-credits .author-rule {
+    width: 50px;
+    height: 1px;
+    background: rgba(26, 26, 26, 0.35);
+    margin: 8px auto 10px;
+  }
+
+  .splash-credits .author-tool {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    font-style: italic;
+    color: rgba(26, 26, 26, 0.6);
+  }
+
+  .splash-credits .author-tool .ai-name {
+    background: linear-gradient(135deg, #c1432e 0%, #b8860b 50%, #2c5f7c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
+
+  @media (max-width: 700px) {
+    .splash-credits .author-label { font-size: 0.75rem; letter-spacing: 0.2em; }
+    .splash-credits .author-name { font-size: 1.25rem; }
+    .splash-credits .author-tool { font-size: 0.85rem; }
+  }
 </style>
 </head>
 <body>
@@ -1342,15 +1533,10 @@
     </div>
     <div class="splash-bottom">
       <div class="splash-credits">
-        <div class="credit-line">
-          <span class="label">Идея и педагогически решения:</span>
-          <span class="name">Валя Витковска</span>
-        </div>
-        <div class="divider"></div>
-        <div class="credit-line">
-          <span class="label">Реализация:</span>
-          <span class="name claude">Claude</span>
-        </div>
+        <div class="author-label">автор</div>
+        <div class="author-name">Валя Витковска</div>
+        <div class="author-rule"></div>
+        <div class="author-tool">интерактивна реализация: <span class="ai-name">Claude (AI)</span></div>
       </div>
       <button class="splash-enter-btn" id="enterApp">
         <span>Започни</span>
@@ -1368,11 +1554,18 @@
 
 <div class="container">
   <header>
-    <h1>Разстояние между две точки</h1>
-    <div class="subtitle">— интерактивен урок и тест в координатна равнина —</div>
+    <h1 id="secretTitle" title="">Разстояние между две точки</h1>
+    <div class="subtitle">— интерактивен урок в координатна равнина —</div>
+    <div class="secret-progress" id="secretProgress">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
   </header>
 
-  <div class="mode-switcher">
+  <div class="mode-switcher" id="modeSwitcher">
     <button class="mode-btn active" data-mode="lesson"><span class="icon">УРОК</span>Интерактивна симулация</button>
     <button class="mode-btn" data-mode="test"><span class="icon">ТЕСТ</span>Учителски режим</button>
   </div>
@@ -1712,31 +1905,27 @@ const Lesson = (() => {
 
     if (!coincide) {
       const isAB = state.formulaMode === 'AB';
-      const canPickSide = !sameX && !sameY; // only true general case has separate sides
 
       gSeg.appendChild(el('line', {
         x1: Apx.x, y1: Apx.y, x2: Bpx.x, y2: Bpx.y,
         stroke: '#b8860b',
-        'stroke-width': (canPickSide && isAB) ? 5 : 3,
+        'stroke-width': isAB ? 5 : 3,
         'stroke-linecap':'round',
         'data-side': 'AB',
-        class: canPickSide ? 'side-clickable' : '',
-        style: canPickSide ? 'cursor: pointer;' : ''
+        class: 'side-clickable',
+        style: 'cursor: pointer;'
       }));
-      // Invisible thicker hit-area for hypotenuse
-      if (canPickSide) {
-        gSeg.appendChild(el('line', {
-          x1: Apx.x, y1: Apx.y, x2: Bpx.x, y2: Bpx.y,
-          stroke: 'transparent', 'stroke-width': 18,
-          'data-side': 'AB', class: 'side-clickable',
-          style: 'cursor: pointer;'
-        }));
-      }
+      // Invisible thicker hit-area for AB (touch-friendly)
+      gSeg.appendChild(el('line', {
+        x1: Apx.x, y1: Apx.y, x2: Bpx.x, y2: Bpx.y,
+        stroke: 'transparent', 'stroke-width': 18,
+        'data-side': 'AB', class: 'side-clickable',
+        style: 'cursor: pointer;'
+      }));
 
       if (state.showLabels) {
-        // In the general case, the hypotenuse label only appears after AB is clicked.
-        // In special cases (horizontal/vertical), AB is the only segment so we always show it.
-        const showHypLabel = !canPickSide || isAB;
+        // Label only appears after AB is clicked — same rule for all cases.
+        const showHypLabel = isAB;
 
         if (showHypLabel) {
           const midX = (Apx.x + Bpx.x)/2;
@@ -1771,13 +1960,13 @@ const Lesson = (() => {
           gLab.appendChild(el('rect', {
             x: offX - boxW/2, y: offY - 11, width: boxW, height: 20,
             fill:'#f4ede0', stroke:'#b8860b',
-            'stroke-width': (canPickSide && isAB) ? 2 : 1,
+            'stroke-width': 2,
             rx: 2, 'pointer-events': 'none'
           }));
           gLab.appendChild(el('text', {
             x: offX, y: offY + 4, 'text-anchor':'middle',
             'font-family':'Cormorant Garamond, serif', 'font-size': 14,
-            'font-weight': (canPickSide && isAB) ? 700 : 600,
+            'font-weight': 700,
             fill:'#b8860b', 'pointer-events': 'none'
           }, labelText));
         }
@@ -1870,35 +2059,38 @@ const Lesson = (() => {
 
     // === Mode: which segment is being computed ===
     const mode = state.formulaMode; // null | 'AB' | 'horiz' | 'vert'
+    const clicked = mode !== null;
 
     if (coincide) {
+      // Special case: coincident points — always show the result, there's nothing to click
       html += `<div class="formula-line">A ≡ B → точките съвпадат</div>`;
       html += `<div class="result-line">AB = 0</div>`;
-    } else if (sameY) {
-      // Horizontal segment only
+    } else if (sameY && clicked) {
+      // Horizontal segment — clicked
       html += `<div class="formula-line"><span class="label">y₁ = y₂ →</span> AB ∥ Ox</div>`;
       html += `<div class="formula-line">AB = |x₂ − x₁|</div>`;
       html += `<div class="formula-line">AB = |${fmt(B.x)} − ${fmtSub(A.x)}| = |${fmt(dx)}|</div>`;
       html += `<div class="result-line">AB = ${fmt(Math.abs(dx))}</div>`;
-    } else if (sameX) {
+    } else if (sameX && clicked) {
+      // Vertical segment — clicked
       html += `<div class="formula-line"><span class="label">x₁ = x₂ →</span> AB ∥ Oy</div>`;
       html += `<div class="formula-line">AB = |y₂ − y₁|</div>`;
       html += `<div class="formula-line">AB = |${fmt(B.y)} − ${fmtSub(A.y)}| = |${fmt(dy)}|</div>`;
       html += `<div class="result-line">AB = ${fmt(Math.abs(dy))}</div>`;
     } else if (mode === 'horiz') {
-      // Computing horizontal leg AC
+      // Computing horizontal leg AC (general case)
       html += `<div class="formula-line"><span class="label">Хоризонтален катет AC:</span></div>`;
       html += `<div class="formula-line">AC ∥ Ox &nbsp; → &nbsp; AC = |x₂ − x₁|</div>`;
       html += `<div class="formula-line">AC = |${fmt(B.x)} − ${fmtSub(A.x)}| = |${fmt(dx)}|</div>`;
       html += `<div class="result-line">AC = ${fmt(Math.abs(dx))}</div>`;
     } else if (mode === 'vert') {
-      // Computing vertical leg BC
+      // Computing vertical leg BC (general case)
       html += `<div class="formula-line"><span class="label">Вертикален катет BC:</span></div>`;
       html += `<div class="formula-line">BC ∥ Oy &nbsp; → &nbsp; BC = |y₂ − y₁|</div>`;
       html += `<div class="formula-line">BC = |${fmt(B.y)} − ${fmtSub(A.y)}| = |${fmt(dy)}|</div>`;
       html += `<div class="result-line">BC = ${fmt(Math.abs(dy))}</div>`;
-    } else if (mode === 'AB') {
-      // Hypotenuse AB — full computation with Pythagoras
+    } else if (mode === 'AB' && !sameX && !sameY) {
+      // Hypotenuse AB (general case) — full computation with Pythagoras
       const sumOfSquares = dx*dx + dy*dy;
       const exactRoot = exactSqrtHTML(sumOfSquares);
       html += `<div class="formula-line"><span class="label">Хипотенуза AB:</span></div>`;
@@ -1919,14 +2111,25 @@ const Lesson = (() => {
         html += `<div class="result-line">AB ≈ ${dist.toFixed(3)}</div>`;
       }
     } else {
-      // No side selected yet — show only the general formula and invite the student
-      html += `<div class="formula-line"><span class="label">Формула:</span></div>`;
-      html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(x₂−x₁)<span class="sup">2</span> + (y₂−y₁)<span class="sup">2</span></span></span></div>`;
+      // No segment clicked yet — show only the appropriate hint formula
+      if (sameY) {
+        html += `<div class="formula-line"><span class="label">y₁ = y₂ →</span> AB ∥ Ox</div>`;
+        html += `<div class="formula-line">AB = |x₂ − x₁|</div>`;
+      } else if (sameX) {
+        html += `<div class="formula-line"><span class="label">x₁ = x₂ →</span> AB ∥ Oy</div>`;
+        html += `<div class="formula-line">AB = |y₂ − y₁|</div>`;
+      } else {
+        html += `<div class="formula-line"><span class="label">Формула:</span></div>`;
+        html += `<div class="formula-line">AB = <span class="sqrt"><span class="sqrt-content">(x₂−x₁)<span class="sup">2</span> + (y₂−y₁)<span class="sup">2</span></span></span></div>`;
+      }
     }
 
-    // Hint for clicking sides (only in general case)
-    if (!coincide && !sameX && !sameY) {
-      html += `<div class="formula-hint">↔ Кликнете върху страна на триъгълника, за да видите дължината и пълното изчисление за нея.</div>`;
+    // Hint for clicking — shown whenever there's something to click
+    if (!coincide && !clicked) {
+      const hintText = (sameX || sameY)
+        ? '↔ Кликнете върху отсечката AB, за да видите изчислението на дължината.'
+        : '↔ Кликнете върху страна на триъгълника, за да видите дължината и пълното изчисление за нея.';
+      html += `<div class="formula-hint">${hintText}</div>`;
     }
 
     document.getElementById('formulaBox').innerHTML = html;
@@ -2299,6 +2502,58 @@ document.querySelectorAll('.mode-btn').forEach(b => {
     switchMode(b.dataset.mode);
   });
 });
+
+// === Secret 5-click sequence on title to reveal teacher mode ===
+(function setupSecretEntrance() {
+  const title = document.getElementById('secretTitle');
+  const progress = document.getElementById('secretProgress');
+  const switcher = document.getElementById('modeSwitcher');
+  const dots = progress.querySelectorAll('.dot');
+
+  let count = 0;
+  let resetTimer = null;
+  const REQUIRED_CLICKS = 5;
+  const RESET_AFTER_MS = 2500;
+
+  function updateDots() {
+    dots.forEach((d, i) => d.classList.toggle('active', i < count));
+  }
+
+  function resetCount() {
+    count = 0;
+    updateDots();
+    progress.classList.remove('show');
+  }
+
+  title.addEventListener('click', () => {
+    // If already revealed, ignore
+    if (switcher.classList.contains('revealed')) return;
+
+    count++;
+    progress.classList.add('show');
+    updateDots();
+
+    // Restart auto-reset timer
+    if (resetTimer) clearTimeout(resetTimer);
+
+    if (count >= REQUIRED_CLICKS) {
+      // Reveal!
+      progress.classList.add('success');
+      setTimeout(() => {
+        switcher.classList.add('revealed');
+        // Hide progress after a short celebration
+        setTimeout(() => {
+          progress.classList.remove('show');
+          progress.classList.remove('success');
+          count = 0;
+          updateDots();
+        }, 600);
+      }, 250);
+    } else {
+      resetTimer = setTimeout(resetCount, RESET_AFTER_MS);
+    }
+  });
+})();
 
 // === Splash screen dismissal ===
 document.getElementById('enterApp').addEventListener('click', () => {
