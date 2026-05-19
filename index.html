@@ -45,7 +45,7 @@
     box-shadow:
       8px 8px 0 rgba(26, 26, 26, 0.85),
       0 20px 60px rgba(44, 95, 124, 0.25);
-    padding: 28px;
+    padding: 24px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -438,7 +438,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 900px;
+    max-width: 1100px; /* Increased width to perfectly fit the side-by-side layout */
     margin: 0 auto;
   }
 
@@ -461,11 +461,8 @@
     background: linear-gradient(90deg, #ff8aa8 0%, #ffb74d 50%, #81c7e8 100%);
   }
 
-  .theory-flow .panel:nth-child(2)::before {
-    background: linear-gradient(90deg, #a8e6a3 0%, #81c7e8 50%, #ceb2eb 100%);
-  }
-  .theory-flow .panel:nth-child(3)::before {
-    background: linear-gradient(90deg, #ceb2eb 0%, #ff8aa8 50%, #ffb74d 100%);
+  .theory-flow > .panel:nth-child(1)::before {
+    background: linear-gradient(90deg, #ff8aa8 0%, #ffb74d 50%, #81c7e8 100%);
   }
 
   .panel h2 {
@@ -516,6 +513,23 @@
   }
   .case-btn.active .num { color: var(--accent-gold); }
 
+  /* ============ NEW SIDE-BY-SIDE GRID LAYOUT ============ */
+  .interactive-split-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Adjusted for better balance */
+    gap: 24px;
+    align-items: stretch; /* Stretch components to keep equal height */
+    width: 100%;
+  }
+
+  /* Breakpoint changed from 992px to 768px so it remains side-by-side inside standard preview viewports */
+  @media (max-width: 768px) {
+    .interactive-split-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+
   .canvas-section {
     background: var(--paper-dark);
     border: 1px solid var(--ink);
@@ -527,6 +541,9 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    width: 100%;
+    height: 100%; /* Stretches to fill the split-grid column height */
+    justify-content: space-between;
   }
 
   .canvas-section::after {
@@ -537,6 +554,18 @@
     right: 0;
     height: 4px;
     background: linear-gradient(90deg, #c1432e 0%, #b8860b 50%, #2c5f7c 100%);
+  }
+
+  /* Specific border-color for the controls sibling card */
+  .control-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Matches height with Canvas Section */
+    justify-content: center; /* Centers control elements vertically */
+  }
+
+  .control-panel::before {
+    background: linear-gradient(90deg, #a8e6a3 0%, #81c7e8 50%, #ceb2eb 100%) !important;
   }
 
   .canvas-wrapper {
@@ -675,7 +704,7 @@
     gap: 10px;
     flex-wrap: wrap;
     margin-top: 8px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .toggle {
@@ -1372,66 +1401,71 @@
           </div>
         </div>
 
-        <!-- 2. CANVAS / DRAWING (After cases) -->
-        <div class="canvas-section">
-          <div class="canvas-wrapper">
-            <svg id="mathCanvas" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
-              <g id="gridLayer"></g>
-              <g id="axesLayer"></g>
-              <g id="triangleLayer"></g>
-              <line id="mainLine" stroke="#1a1a1a" stroke-width="3" />
-              <text id="distLabel" fill="#b8860b" font-family="'JetBrains Mono', monospace" font-weight="bold" font-size="14" style="pointer-events: none; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;"></text>
-              
-              <circle id="pointA" class="point-handle" r="7" fill="#c1432e" stroke="#fff" stroke-width="2" />
-              <circle id="pointB" class="point-handle" r="7" fill="#2c5f7c" stroke="#fff" stroke-width="2" />
-              
-              <text id="labelA" fill="#c1432e" font-family="'Cormorant Garamond', serif" font-weight="bold" font-size="16" style="pointer-events: none;"></text>
-              <text id="labelB" fill="#2c5f7c" font-family="'Cormorant Garamond', serif" font-weight="bold" font-size="16" style="pointer-events: none;"></text>
-            </svg>
-          </div>
+        <!-- NEW SPLIT GRID SECTION (Drawing on left, Configuration on right) -->
+        <div class="interactive-split-grid">
           
-          <div class="legend">
-            <div class="legend-item"><div class="legend-color" style="background: #1a1a1a;"></div> Търсено разстояние d</div>
-            <div class="legend-item"><div class="legend-color" style="background: #b8860b; border-top: 2px dashed #b8860b; height:0;"></div> Разлики по координати (|Δx|, |Δy|)</div>
+          <!-- LEFT: CANVAS / DRAWING -->
+          <div class="canvas-section">
+            <div class="canvas-wrapper">
+              <svg id="mathCanvas" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet">
+                <g id="gridLayer"></g>
+                <g id="axesLayer"></g>
+                <g id="triangleLayer"></g>
+                <line id="mainLine" stroke="#1a1a1a" stroke-width="3" />
+                <text id="distLabel" fill="#b8860b" font-family="'JetBrains Mono', monospace" font-weight="bold" font-size="14" style="pointer-events: none; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;"></text>
+                
+                <circle id="pointA" class="point-handle" r="7" fill="#c1432e" stroke="#fff" stroke-width="2" />
+                <circle id="pointB" class="point-handle" r="7" fill="#2c5f7c" stroke="#fff" stroke-width="2" />
+                
+                <text id="labelA" fill="#c1432e" font-family="'Cormorant Garamond', serif" font-weight="bold" font-size="16" style="pointer-events: none;"></text>
+                <text id="labelB" fill="#2c5f7c" font-family="'Cormorant Garamond', serif" font-weight="bold" font-size="16" style="pointer-events: none;"></text>
+              </svg>
+            </div>
+            
+            <div class="legend">
+              <div class="legend-item"><div class="legend-color" style="background: #1a1a1a;"></div> Търсено разстояние d</div>
+              <div class="legend-item"><div class="legend-color" style="background: #b8860b; border-top: 2px dashed #b8860b; height:0;"></div> Разлики по координати (|Δx|, |Δy|)</div>
+            </div>
+
+            <!-- Case description placed elegantly below the drawing -->
+            <div class="case-description" id="caseDesc">Зареждане на информация...</div>
           </div>
 
-          <!-- Case description placed elegantly below the drawing -->
-          <div class="case-description" id="caseDesc">Зареждане на информация...</div>
-        </div>
-
-        <!-- 3. CONFIGURATION & TOGGLES (After drawing) -->
-        <div class="panel">
-          <h2>Контрол и Настройки на визуализацията</h2>
-          
-          <div class="point-controls">
-            <div class="point-row">
-              <div class="point-label A">A</div>
-              <div class="coord-input">
-                <span>x₁:</span> <input type="number" id="ax" value="-4" step="1" min="-10" max="10">
+          <!-- RIGHT: CONFIGURATION & TOGGLES -->
+          <div class="panel control-panel">
+            <h2>Контрол и Настройки на визуализацията</h2>
+            
+            <div class="point-controls">
+              <div class="point-row">
+                <div class="point-label A">A</div>
+                <div class="coord-input">
+                  <span>x₁:</span> <input type="number" id="ax" value="-4" step="1" min="-10" max="10">
+                </div>
+                <div class="coord-input">
+                  <span>y₁:</span> <input type="number" id="ay" value="3" step="1" min="-10" max="10">
+                </div>
               </div>
-              <div class="coord-input">
-                <span>y₁:</span> <input type="number" id="ay" value="3" step="1" min="-10" max="10">
+              <div class="point-row">
+                <div class="point-label B">B</div>
+                <div class="coord-input">
+                  <span>x₂:</span> <input type="number" id="bx" value="4" step="1" min="-10" max="10">
+                </div>
+                <div class="coord-input">
+                  <span>y₂:</span> <input type="number" id="by" value="3" step="1" min="-10" max="10">
+                </div>
               </div>
             </div>
-            <div class="point-row">
-              <div class="point-label B">B</div>
-              <div class="coord-input">
-                <span>x₂:</span> <input type="number" id="bx" value="4" step="1" min="-10" max="10">
-              </div>
-              <div class="coord-input">
-                <span>y₂:</span> <input type="number" id="by" value="3" step="1" min="-10" max="10">
-              </div>
+            
+            <div class="toggle-row">
+              <div class="toggle on" id="toggleCoords"><div class="dot"></div> Координати на точките</div>
+              <div class="toggle on" id="toggleTriangle"><div class="dot"></div> Правоъгълен триъгълник</div>
+              <div class="toggle on" id="toggleLength"><div class="dot"></div> Дължина на отсечката</div>
             </div>
           </div>
-          
-          <div class="toggle-row">
-            <div class="toggle on" id="toggleCoords"><div class="dot"></div> Координати на точките</div>
-            <div class="toggle on" id="toggleTriangle"><div class="dot"></div> Правоъгълен триъгълник</div>
-            <div class="toggle on" id="toggleLength"><div class="dot"></div> Дължина на отсечката</div>
-          </div>
-        </div>
 
-        <!-- 4. CALCULATIONS & FORMULA (At the very end) -->
+        </div> <!-- End of interactive split-grid -->
+
+        <!-- 3. CALCULATIONS & FORMULA (At the very end, full width) -->
         <div class="panel">
           <h2>Математическо пресмятане по формула</h2>
           <div class="formula-box">
